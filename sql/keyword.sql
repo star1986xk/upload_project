@@ -26,7 +26,7 @@ GO
 CREATE TABLE [dbo].[keyword] (
   [id] int  IDENTITY(1,1) NOT NULL,
   [word] nvarchar(255) COLLATE Chinese_PRC_CI_AS  NULL,
-  [user_id] int  NULL
+  [role_id] int  NULL
 )
 GO
 
