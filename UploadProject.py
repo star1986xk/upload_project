@@ -71,7 +71,7 @@ class MainWindow(QFrame, Ui_Form):
     def auth(self, user_id, role_id):
         self.win_login.hide()
         self.user_id = user_id
-        role_id = role_id
+        self.role_id = role_id
         if role_id != 1:
             self.pushButton_settings.setHidden(True)
         self.load_ftp(role_id)
@@ -112,7 +112,8 @@ class MainWindow(QFrame, Ui_Form):
         }
         self.lineEdit_uid.setText(update_obj.get('uid'))
 
-        self.update_class = UpdateClass(TEMP, update_obj, self.filenames, self.log, self.func, self.read_db)
+        self.update_class = UpdateClass(self.role_id, TEMP, update_obj, self.filenames, self.log, self.func,
+                                        self.read_db)
         self.update_class.sig_one.connect(self.up_progress)
         self.update_class.sig_end.connect(self.up_end)
         self.update_class.start()

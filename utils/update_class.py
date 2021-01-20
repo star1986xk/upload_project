@@ -9,9 +9,10 @@ class UpdateClass(QThread):
     sig_one = pyqtSignal(int)
     sig_end = pyqtSignal(str, bool)
 
-    def __init__(self, TEMP, update_obj, filenames, log, func, read_db):
+    def __init__(self, role_id, temp, update_obj, filenames, log, func, read_db):
         super().__init__()
-        self.TEMP = TEMP
+        self.role_id = role_id
+        self.TEMP = temp
         self.update_obj = update_obj
         self.filenames = filenames
         self.log = log
@@ -67,7 +68,7 @@ class UpdateClass(QThread):
                 for word in words:
                     if word[1] in text_str:
                         keys.append(word[1])
-                        if str(word[2]) != str(self.update_obj.get('user_id')):
+                        if str(word[2]) != str(self.role_id):
                             self.flag = False
                 keyword = '/'.join(keys) if keys else '无关键词'
             else:

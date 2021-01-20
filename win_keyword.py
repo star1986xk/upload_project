@@ -21,13 +21,13 @@ class WinKeyword(QDialog, Ui_Dialog):
         self.load_user()
 
     def load_user(self):
-        users = self.read_db.get_user()
-        self.comboBox.addItems([str(u[0]) + '_' + u[1] for u in users])
+        roles = self.read_db.get_role()
+        self.comboBox.addItems([str(r[0]) + '_' + r[1] for r in roles])
 
     def save(self):
         word_list = [word.strip() for word in self.textEdit.toPlainText().split('\n') if word.strip()]
-        user_id = self.comboBox.currentText().split('_')[0]
-        self.read_db.add_word(word_list, user_id)
+        role_id = self.comboBox.currentText().split('_')[0]
+        self.read_db.add_word(word_list, role_id)
         if word_list:
             self.sing.emit()
             self.close()

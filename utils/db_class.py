@@ -28,11 +28,12 @@ class DBClass(object):
                         charset=self.SQL['charset'])
         return pool
 
-    def getWhere(self, condition: list) -> str:
-        if condition:
-            return ' where ' + ' and '.join([li[0] + ' ' + li[1] + ' %s' for li in condition]), tuple(
-                [str(li[2]) for li in condition])
-        return '', ()
+    def getWhere(self, condition: list) -> (str, tuple):
+        return (' where ' + ' and '.join([li[0] + ' ' + li[1] + ' %s' for li in condition]),
+                tuple([str(li[2]) for li in condition])) if condition else ('', ())
+
+    def getORDER(self, order: list, by: str):
+        return ' ORDER BY ' + ','.join([li for li in order]) + ' ' + by if order else ''
 
     def select_count(self, table_name: str, condition: list = None) -> int:
         '''
@@ -44,7 +45,7 @@ class DBClass(object):
         @return: 查询后的数据条数
         '''
         try:
-            where, data = self.getWhere(condition)
+            (where, data) = self.getWhere(condition)
             con = self.pool.connection()
             cur = con.cursor()
             _sql = 'SELECT count(*) FROM ' + table_name + where + ';'
@@ -60,7 +61,7 @@ class DBClass(object):
             cur.close()
             con.close()
 
-    def select_condition(self, table_name: str, condition: list = None) -> list:
+    def select_condition(self, table_name: str, condition: list = None, order: list = None, by: str = 'ASC') -> list:
         '''
         条件查询\n
         如:select * from table1 where id=1 and name like '%xx%';\n
@@ -70,10 +71,10 @@ class DBClass(object):
         @return: 查询后的数据集合
         '''
         try:
-            where, data = self.getWhere(condition)
+            (where, data) = self.getWhere(condition)
             con = self.pool.connection()
             cur = con.cursor()
-            _sql = 'SELECT * FROM ' + table_name + where + ';'
+            _sql = 'SELECT * FROM ' + table_name + where + self.getORDER(order, by) + ';'
             cur.execute(_sql, data)
             result = cur.fetchall()
             con.commit()

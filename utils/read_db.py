@@ -102,13 +102,13 @@ class ReadDB():
         return word
 
     def add_word(self, word_list, user_id):
-        self.db.insert_many('keyword', [{'word': word, 'user_id': user_id} for word in word_list])
+        self.db.insert_many('keyword', [{'word': word, 'role_id': user_id} for word in word_list])
 
     def delete_word(self, word_id):
         self.db.delete_many('keyword', [{'id': word_id}])
 
     def get_project(self, condition=None):
-        project = self.db.select_condition('project_view', condition)
+        project = self.db.select_condition('project_view', condition, order=['project_date'], by='DESC')
         return project
 
     def get_baidu(self):

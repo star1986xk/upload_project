@@ -69,7 +69,7 @@ QCheckBox:pressed{
     padding-top:2px;
 }</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="7,3">
    <property name="spacing">
     <number>0</number>
    </property>
@@ -195,8 +195,14 @@ QCheckBox:pressed{
         <layout class="QHBoxLayout" name="horizontalLayout_13">
          <item>
           <widget class="QLabel" name="label_up">
+           <property name="minimumSize">
+            <size>
+             <width>70</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="text">
-            <string>上传成功：</string>
+            <string>上传编号为</string>
            </property>
           </widget>
          </item>
@@ -294,6 +300,18 @@ QCheckBox:pressed{
    </item>
    <item>
     <widget class="QWidget" name="widget_2" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>300</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
        <widget class="QWidget" name="widget_3" native="true">
