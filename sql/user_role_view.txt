@@ -1,0 +1,3 @@
+SELECT   dbo.[user].id, dbo.[user].name, dbo.[user].username, dbo.[user].password, dbo.role.name AS role_name
+FROM      dbo.[user] LEFT OUTER JOIN
+                dbo.role ON dbo.[user].role_id = dbo.role.id

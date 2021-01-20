@@ -1,0 +1,10 @@
+SELECT
+	keyword.id, 
+	keyword.word, 
+	[user].username
+FROM
+	dbo.keyword
+	LEFT JOIN
+	dbo.[user]
+	ON 
+		keyword.user_id = [user].id

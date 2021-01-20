@@ -1,0 +1,9 @@
+pyinstaller --paths C:\Users\only_\AppData\Local\Programs\Python\Python37\Lib\site-packages\PyQt5\Qt\bin -w -i ./UI/upload.ico UploadProject.py
+
+pyinstaller --paths C:\Users\Administrator\AppData\Local\Programs\Python\Python37\Lib\site-packages\PyQt5\Qt\bin -w -i ./UI/check.ico CheckProject.py
+
+文件    config.ini
+文件    UnRAR.exe
+文件夹  temp
+文件夹  transfer
+放入打包后根目录

@@ -1,0 +1,15 @@
+SELECT
+	role.id AS role_id, 
+	role.name AS role_name, 
+	ftp.name AS ftp_name, 
+	ftp.id AS ftp_id
+FROM
+	dbo.role
+	LEFT JOIN
+	dbo.role_ftp
+	ON 
+		role.id = role_ftp.role_id
+	LEFT JOIN
+	dbo.ftp
+	ON 
+		role_ftp.ftp_id = ftp.id
