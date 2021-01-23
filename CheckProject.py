@@ -3,7 +3,7 @@ import sys
 import datetime
 from UI.ui_check import Ui_Form
 from PyQt5.QtWidgets import QFrame
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMessageBox
 from PyQt5.QtCore import QTimer
 
 from utils.read_db import ReadDB
@@ -17,8 +17,7 @@ class WinCheck(QFrame, Ui_Form):
         super().__init__()
         self.setupUi(self)
         self.retranslateUi(self)
-        self.setFixedSize(self.width(),self.height())
-
+        self.setFixedSize(self.width(), self.height())
 
         self.read_db = ReadDB()
         self.func = Func(self.read_db)
@@ -66,50 +65,58 @@ class WinCheck(QFrame, Ui_Form):
         # 得到中转站文件
         updatefile = self.read_db.get_updatefile([['is_wait', '=', '1']])
         for file in updatefile:
-            uid = file[1]
-            # 检测审核状态
-            result = self.read_db.get_check([['uid', '=', uid]])
-            if not result: continue
-            # 通过审核
-            if str(result[0][2]) == '1':
-                # 删除并重建TRANSFER文件夹
-                if os.path.exists(TRANSFER):
-                    self.func.del_dir(TRANSFER)
-                os.makedirs(TRANSFER)
+            try:
+                uid = file[1]
+                # 检测审核状态
+                result = self.read_db.get_check([['uid', '=', uid]])
+                if not result: continue
+                # 通过审核
+                if str(result[0][2]) == '1':
+                    print('通过审核')
+                    # 删除并重建TRANSFER文件夹
+                    if os.path.exists(TRANSFER):
+                        self.func.del_dir(TRANSFER)
+                    os.makedirs(TRANSFER)
 
-                # 创建中转ftp
-                ftp_obj_1 = self.read_db.get_ftp([['id', '=', '1']])[0]
-                my_ftp_1 = MyFTP(*ftp_obj_1[2:6])
+                    # 创建中转ftp
+                    ftp_obj_1 = self.read_db.get_ftp([['id', '=', '1']])[0]
+                    my_ftp_1 = MyFTP(*ftp_obj_1[2:6])
 
-                # 创建最终ftp
-                ftp_obj_2 = self.read_db.get_ftp([['id', '=', file[4]]])[0]
-                my_ftp_2 = MyFTP(*ftp_obj_2[2:6])
+                    # 创建最终ftp
+                    ftp_obj_2 = self.read_db.get_ftp([['id', '=', file[4]]])[0]
+                    my_ftp_2 = MyFTP(*ftp_obj_2[2:6])
+                    print('下载通过的项目')
+                    # 下载通过的项目
+                    my_ftp_1.download_file(os.path.join(ftp_obj_1[-1], file[5], file[1]).replace('\\', '/'),
+                                           os.path.join(os.path.dirname(os.path.abspath(__file__)), 'transfer'))
 
-                # 下载通过的项目
-                my_ftp_1.download_file(os.path.join(ftp_obj_1[-1], file[5], file[1]).replace('\\', '/'),
-                                       os.path.join(os.path.dirname(os.path.abspath(__file__)), 'transfer'))
+                    # 得到TRANSFER所有文件路径
+                    listname = []
+                    listname = self.func.listdir(TRANSFER, listname)
+                    print('上传文件到最终服务器')
+                    # 上传文件到最终服务器
+                    for filename in listname:
+                        with open(filename, 'rb') as f:
+                            my_ftp_2.upload_file(ftp_obj_2[-1], file[5], file[1], os.path.split(filename)[-1], f)
 
-                # 得到TRANSFER所有文件路径
-                listname = []
-                listname = self.func.listdir(TRANSFER, listname)
+                if str(result[0][2]) == '1' or str(result[0][2]) == '2':
+                    print('更新表')
+                    # 更新待审核状态
+                    self.read_db.update_updatefile({'is_wait': 0}, {'id': file[0]})
+                    print('删除文件')
+                    # 删除中转文件
+                    my_ftp_1.del_file(os.path.join(ftp_obj_1[-1], file[5], file[1]).replace('\\', '/'))
 
-                # 上传文件到最终服务器
-                for filename in listname:
-                    with open(filename, 'rb') as f:
-                        my_ftp_2.upload_file(ftp_obj_2[-1], file[5], file[1], os.path.split(filename)[-1], f)
-
-            if str(result[0][2]) == '1' or str(result[0][2]) == '2':
-                # 更新待审核状态
-                self.read_db.update_updatefile({'is_wait': 0}, {'id': file[0]})
-
-                # 删除中转文件
-                my_ftp_1.del_file(os.path.join(ftp_obj_1[-1], file[5], file[1]).replace('\\', '/'))
-
-            # 关闭ftp连接
-            if 'my_ftp_1' in locals().keys():
-                my_ftp_1.close()
-            if 'my_ftp_2' in locals().keys():
-                my_ftp_2.close()
+                # 关闭ftp连接
+                if 'my_ftp_1' in locals().keys():
+                    my_ftp_1.close()
+                    del my_ftp_1
+                if 'my_ftp_2' in locals().keys():
+                    my_ftp_2.close()
+                    del my_ftp_2
+            except Exception as e:
+                print(e)
+                QMessageBox.information(self, '错误', str(e))
 
 
 if __name__ == '__main__':
