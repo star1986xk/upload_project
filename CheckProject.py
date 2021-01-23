@@ -17,9 +17,11 @@ class WinCheck(QFrame, Ui_Form):
         super().__init__()
         self.setupUi(self)
         self.retranslateUi(self)
+        self.setFixedSize(self.width(),self.height())
+
 
         self.read_db = ReadDB()
-        self.func = Func()
+        self.func = Func(self.read_db)
         self.timer = QTimer()
         self.t = 0
         self.timer.timeout.connect(self.timeout_slot)
@@ -31,7 +33,7 @@ class WinCheck(QFrame, Ui_Form):
         hours = self.spinBox_2.value()
         minutes = self.spinBox_3.value()
         self.t = self.total = int(datetime.timedelta(days=days, hours=hours, minutes=minutes).total_seconds())
-        print(self.t)
+
         if self.t > 0:
             self.label_5.setText(str(self.t))
 
@@ -69,7 +71,7 @@ class WinCheck(QFrame, Ui_Form):
             result = self.read_db.get_check([['uid', '=', uid]])
             if not result: continue
             # 通过审核
-            if result[0][2] == 1:
+            if str(result[0][2]) == '1':
                 # 删除并重建TRANSFER文件夹
                 if os.path.exists(TRANSFER):
                     self.func.del_dir(TRANSFER)
@@ -96,7 +98,7 @@ class WinCheck(QFrame, Ui_Form):
                     with open(filename, 'rb') as f:
                         my_ftp_2.upload_file(ftp_obj_2[-1], file[5], file[1], os.path.split(filename)[-1], f)
                 my_ftp_2.close()
-            if result[0][2] == 1 or result[0][2] == 2:
+            if str(result[0][2]) == '1' or str(result[0][2]) == '2':
                 # 更新待审核状态
                 self.read_db.update_updatefile({'is_wait': 0}, {'id': file[0]})
 
