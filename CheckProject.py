@@ -97,7 +97,7 @@ class WinCheck(QFrame, Ui_Form):
                 for filename in listname:
                     with open(filename, 'rb') as f:
                         my_ftp_2.upload_file(ftp_obj_2[-1], file[5], file[1], os.path.split(filename)[-1], f)
-                my_ftp_2.close()
+
             if str(result[0][2]) == '1' or str(result[0][2]) == '2':
                 # 更新待审核状态
                 self.read_db.update_updatefile({'is_wait': 0}, {'id': file[0]})
