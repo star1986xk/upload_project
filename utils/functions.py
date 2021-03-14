@@ -11,6 +11,7 @@ from pdfminer.pdfpage import PDFPage
 from pdfminer.layout import LAParams
 from pdfminer.converter import TextConverter
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+import chardet
 
 from utils.ocr import OCRClass
 
@@ -81,9 +82,10 @@ class Func():
         return text
 
     def read_txt(self, path):
-        with open(path, 'r', encoding='utf8') as f:
+        with open(path, 'rb') as f:
             text = f.read()
-        return text
+        encode = chardet.detect(text).get('encoding')
+        return text.decode(encode)
 
     def read(self, path):
         name, ext = os.path.splitext(path)
