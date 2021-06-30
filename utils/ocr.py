@@ -26,7 +26,7 @@ class OCRClass():
             return base64.b64encode(f.read())
 
     # type(url | image)url:传入图片url,image:传入图片二进制格式转base64编码
-    def ocr(self, type, img):
+    def ocr(self, type, img, count=0):
         try:
             headers = {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -41,12 +41,15 @@ class OCRClass():
                     'access_token': self.get_token(),
                     'image': img
                 }
-            ocr_url = 'https://aip.baidubce.com/rest/2.0/ocr/v1/accurate_basic'
+            ocr_url = 'https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic'
             response = requestPOST(ocr_url, headers=headers, data=ocr_data)
             return ' '.join([words.get('words') for words in response.json()['words_result']])
         except Exception as e:
-            time.sleep(1)
-            self.ocr(type, img)
+            count += 1
+            if count < 5:
+                time.sleep(1)
+                return self.ocr(type, img, count)
+            raise ValueError(str(e))
 
     def run(self, path):
         img = self.get_img_base64(path)
