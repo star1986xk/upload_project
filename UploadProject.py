@@ -21,13 +21,13 @@ class MainWindow(QFrame, Ui_Form):
             self.setupUi(self)
             self.retranslateUi(self)
 
-            self.label_up.setHidden(True)
-            self.lineEdit_uid.setHidden(True)
+            self.label_up.setHidden(True)  # 上传编号 上传成功时 显示
+            self.lineEdit_uid.setHidden(True)  # 上传编号 上传成功时 显示
 
-            self.pushButton_settings.clicked.connect(self.open_settings)
-            self.pushButton_file.clicked.connect(self.open_file)
-            self.pushButton_upload.clicked.connect(self.upload)
-            self.pushButton_logout.clicked.connect(self.logout)
+            self.pushButton_settings.clicked.connect(self.open_settings)  # 配置按钮
+            self.pushButton_file.clicked.connect(self.open_file)  # 选取文件按钮
+            self.pushButton_upload.clicked.connect(self.upload)  # 上传按钮
+            self.pushButton_logout.clicked.connect(self.logout)  # 登出按钮
 
             self.log = MyLog()
 
@@ -40,34 +40,41 @@ class MainWindow(QFrame, Ui_Form):
         except Exception as e:
             self.log.logger.warning('__init__:' + str(e))
 
+    # 登出按钮
     def logout(self):
         self.hide()
         self.win_login.show()
 
+    # 初始化变量
     def var(self):
         self.filenames = None
         self.read_db = ReadDB()
         self.func = Func(self.read_db)
 
+    # 载入软件标题及说明
     def load_info(self):
         self.info = self.read_db.get_info()
         self.setWindowTitle(self.info[0][1])
         self.textEdit_describe.setText(self.info[0][2])
 
+    # 载入全部项目
     def load_project(self):
         project = self.read_db.get_project()
         self.comboBox_project.addItems([str(p[0]) + '_' + str(p[1]) + '_' + p[2] for p in project])
 
+    # 载入ftp服务器
     def load_ftp(self, role_id):
         ftp = self.read_db.get_role_ftp(role_id)
         self.comboBox_ftp.addItems(ftp)
 
+    # 打开登陆界面
     def login(self):
         self.win_login = WinLogin(self.info[0][1], self.read_db, self)
         self.win_login.sing.connect(self.auth)
         if not self.win_login.remember_auto_password():
             self.win_login.show()
 
+    # 登陆成功
     def auth(self, user_id, role_id):
         self.win_login.hide()
         self.user_id = user_id
@@ -77,10 +84,12 @@ class MainWindow(QFrame, Ui_Form):
         self.load_ftp(role_id)
         self.show()
 
+    # 打开配置页面
     def open_settings(self):
         self.win_settings = WinSettings(self.read_db, self)
         self.win_settings.show()
 
+    # 选取文件
     def open_file(self):
         try:
             self.filenames, _ = QFileDialog.getOpenFileNames(self,
@@ -91,9 +100,11 @@ class MainWindow(QFrame, Ui_Form):
         except Exception as e:
             print(e)
 
+    # 上传文件
     def upload(self):
         if not self.filenames: return
 
+        # 初始化
         self.label_up.setHidden(True)
         self.lineEdit_uid.setHidden(True)
         self.pushButton_upload.setDisabled(True)
@@ -118,9 +129,11 @@ class MainWindow(QFrame, Ui_Form):
         self.update_class.sig_end.connect(self.up_end)
         self.update_class.start()
 
+    # 更新进度条
     def up_progress(self, number):
         self.progressBar.setValue(number)
 
+    # 上传结束
     def up_end(self, msg: str, flag: bool):
         QMessageBox.information(self, '提示', msg)
         if '成功' in msg:
